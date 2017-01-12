@@ -164,7 +164,8 @@ function delete_player($_REQUEST, $player_data)
 function matching($player_data,$depth)
 {
 	$player_count = count($player_data);
-	if($player_count < 8)
+	$max_team_member_count = ($player_count > 8) ? 4 : floor($player_count / 2);
+	if($player_count < 4)
 	{
 		return array();
 	}
@@ -179,7 +180,7 @@ function matching($player_data,$depth)
 		if(count($team_a) < $player_count/2)
 		{
 			//このチームにすでに4人いた場合は、[待機組]の文字を名前につける
-			if(count($team_a) >= 4)
+			if(count($team_a) >= $max_team_member_count)
 			{
 				$temp_data['name'] = "[待機組] {$temp_data['name']}";
 			}
@@ -188,7 +189,7 @@ function matching($player_data,$depth)
 		else
 		{
 			//このチームにすでに4人いた場合は、[待機組]の文字を名前につける
-			if(count($team_b) >= 4)
+			if(count($team_b) >= $max_team_member_count)
 			{
 				$temp_data['name'] = "[待機組] {$temp_data['name']}";
 			}
@@ -230,27 +231,26 @@ function check_roll_balance($team_a, $team_b)
 	$roll_balance_b = array('F'=>0, 'A'=>0, 'S'=>0);
 
 	//ロール配分パターン配列
-	$roll_balance_array[] = array('F'=>4, 'A'=>0, 'S'=>0);
-	$roll_balance_array[] = array('F'=>3, 'A'=>1, 'S'=>0);
-	$roll_balance_array[] = array('F'=>3, 'A'=>0, 'S'=>1);
-	$roll_balance_array[] = array('F'=>2, 'A'=>2, 'S'=>0);
-	$roll_balance_array[] = array('F'=>2, 'A'=>0, 'S'=>2);
-	$roll_balance_array[] = array('F'=>2, 'A'=>1, 'S'=>1);
-	$roll_balance_array[] = array('F'=>1, 'A'=>3, 'S'=>0);
-	$roll_balance_array[] = array('F'=>1, 'A'=>2, 'S'=>1);
-	$roll_balance_array[] = array('F'=>1, 'A'=>1, 'S'=>2);
-	$roll_balance_array[] = array('F'=>1, 'A'=>0, 'S'=>3);
-	$roll_balance_array[] = array('F'=>0, 'A'=>4, 'S'=>0);
-	$roll_balance_array[] = array('F'=>0, 'A'=>3, 'S'=>1);
-	$roll_balance_array[] = array('F'=>0, 'A'=>2, 'S'=>2);
-	$roll_balance_array[] = array('F'=>0, 'A'=>1, 'S'=>3);
-	$roll_balance_array[] = array('F'=>0, 'A'=>0, 'S'=>4);
+	$min_team_member_count = min(count($team_a),count($team_b));
+	for($f=0;$f<=$min_team_member_count;$f++)
+	{
+		for($a=0;$a<=$min_team_member_count;$a++)
+		{
+			for($s=0;$s<=$min_team_member_count;$s++)
+			{
+				if($f+$a+$s == $min_team_member_count)
+				{
+					$roll_balance_array[] = array('F'=>$f,'A'=>$a,'S'=>$s);
+				}
+			}
+		}
+	}
 	//シャッフルして上から取り出して、ロールバランスチェック
 	$roll_balance_array = shuffle_assoc($roll_balance_array);
 	foreach ($roll_balance_array as $roll_balance)
 	{
-		$roll_assignment_a = get_roll_assignment($team_a,$roll_balance);
-		$roll_assignment_b = get_roll_assignment($team_b,$roll_balance);
+		$roll_assignment_a = get_roll_assignment($team_a,$roll_balance,$min_team_member_count);
+		$roll_assignment_b = get_roll_assignment($team_b,$roll_balance,$min_team_member_count);
 		if(!empty($roll_assignment_a) &&
 		   !empty($roll_assignment_b))
 		{
@@ -262,7 +262,7 @@ function check_roll_balance($team_a, $team_b)
 	return array(); //ロールバランスマッチ失敗なら空配列を返す
 }
 
-function get_roll_assignment($team,$roll_balance)
+function get_roll_assignment($team,$roll_balance,$max_team_member_count)
 {
 	foreach ($team[0] as $roll0 => $is_playable0)
 	{
@@ -289,8 +289,56 @@ function get_roll_assignment($team,$roll_balance)
 						return $returnArray;
 					}
 				}
-			}		
-		}	
+				//1チーム3人のときは、$team[3]のforeachに入らないので、ここでチェック
+				if($max_team_member_count == 3)
+				{
+					$temp_team_roll = array('F'=>0,'A'=>0,'S'=>0);
+					$temp_team_roll[$roll0] += $is_playable0;
+					$temp_team_roll[$roll1] += $is_playable1;
+					$temp_team_roll[$roll2] += $is_playable2;
+					if($temp_team_roll['F'] == $roll_balance['F'] &&
+					   $temp_team_roll['A'] == $roll_balance['A'] &&
+					   $temp_team_roll['S'] == $roll_balance['S'])
+					{
+						$returnArray = array();
+						$returnArray[] = $roll0;
+						$returnArray[] = $roll1;
+						$returnArray[] = $roll2;
+						return $returnArray;
+					}
+				}
+			}
+			//1チーム2人のときは、$team[2]のforeachに入らないので、ここでチェック
+			if($max_team_member_count == 2)
+			{
+				$temp_team_roll = array('F'=>0,'A'=>0,'S'=>0);
+				$temp_team_roll[$roll0] += $is_playable0;
+				$temp_team_roll[$roll1] += $is_playable1;
+				if($temp_team_roll['F'] == $roll_balance['F'] &&
+				   $temp_team_roll['A'] == $roll_balance['A'] &&
+				   $temp_team_roll['S'] == $roll_balance['S'])
+				{
+					$returnArray = array();
+					$returnArray[] = $roll0;
+					$returnArray[] = $roll1;
+					return $returnArray;
+				}
+			}
+		}
+		//1チーム1人のときは、$team[1]のforeachに入らないので、ここでチェック
+		if($max_team_member_count == 1)
+		{
+			$temp_team_roll = array('F'=>0,'A'=>0,'S'=>0);
+			$temp_team_roll[$roll0] += $is_playable0;
+			if($temp_team_roll['F'] == $roll_balance['F'] &&
+			   $temp_team_roll['A'] == $roll_balance['A'] &&
+			   $temp_team_roll['S'] == $roll_balance['S'])
+			{
+				$returnArray = array();
+				$returnArray[] = $roll0;
+				return $returnArray;
+			}
+		}
 	}
 	return array();
 }
