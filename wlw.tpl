@@ -74,7 +74,14 @@ HTML;
 HTML;
 	$teamA_member = '';
 	foreach ($_temp['matching_data']['teamA'] as $key => $member) {
-		$roll = $_temp['matching_data']['roll_assignment_a'][$key]; //F or A or S
+		if(array_key_exists($key,$_temp['matching_data']['roll_assignment_a']))
+		{
+			$roll = $_temp['matching_data']['roll_assignment_a'][$key]; //F or A or S
+		}
+		else
+		{
+			$roll = '';
+		}
 		$teamA_member .= <<<HTML
 		{$roll} {$member['name']}<br>
 HTML;

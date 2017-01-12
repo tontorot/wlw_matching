@@ -268,10 +268,16 @@ function get_roll_assignment($team,$roll_balance,$max_team_member_count)
 	{
 		foreach ($team[1] as $roll1 => $is_playable1)
 		{
+			if($max_team_member_count == 1)
+				break;
 			foreach ($team[2] as $roll2 => $is_playable2)
 			{
+				if($max_team_member_count == 2)
+					break;
 				foreach ($team[3] as $roll3 => $is_playable3)
 				{
+					if($max_team_member_count == 3)
+						break;
 					$temp_team_roll = array('F'=>0,'A'=>0,'S'=>0);
 					$temp_team_roll[$roll0] += $is_playable0;
 					$temp_team_roll[$roll1] += $is_playable1;
