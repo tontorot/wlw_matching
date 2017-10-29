@@ -1,6 +1,6 @@
 <?php
 $_output .= <<<HTML
-	</body>
+	</body><div></div>
 	</html>
 HTML;
 ?>
