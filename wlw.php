@@ -205,7 +205,7 @@ function matching($player_data,$depth)
 	}
 
 	//ロールバランスが取れたマッチングができていなかったら、再マッチング
-	$roll_balance_array = check_roll_balance($team_a, $team_b);
+	$roll_balance_array = check_roll_balance($team_a, $team_b, $max_team_member_count);
 	if(empty($roll_balance_array))
 	{
 		return matching($player_data,$depth+1);
@@ -226,20 +226,19 @@ function shuffle_assoc($list) {
     return $random;
 }
 
-function check_roll_balance($team_a, $team_b)
+function check_roll_balance($team_a, $team_b, $max_team_member_count)
 {
 	$roll_balance_a = array('F'=>0, 'A'=>0, 'S'=>0);
 	$roll_balance_b = array('F'=>0, 'A'=>0, 'S'=>0);
 
-	//ロール配分パターン配列
-	$min_team_member_count = min(count($team_a),count($team_b));
-	for($f=0;$f<=$min_team_member_count;$f++)
+	//マッチングの最大人数になるまで、ロールを配分
+	for($f=0;$f<=$max_team_member_count;$f++)
 	{
-		for($a=0;$a<=$min_team_member_count;$a++)
+		for($a=0;$a<=$max_team_member_count;$a++)
 		{
-			for($s=0;$s<=$min_team_member_count;$s++)
+			for($s=0;$s<=$max_team_member_count;$s++)
 			{
-				if($f+$a+$s == $min_team_member_count)
+				if($f+$a+$s == $max_team_member_count)
 				{
 					$roll_balance_array[] = array('F'=>$f,'A'=>$a,'S'=>$s);
 				}
@@ -250,8 +249,8 @@ function check_roll_balance($team_a, $team_b)
 	$roll_balance_array = shuffle_assoc($roll_balance_array);
 	foreach ($roll_balance_array as $roll_balance)
 	{
-		$roll_assignment_a = get_roll_assignment($team_a,$roll_balance,$min_team_member_count);
-		$roll_assignment_b = get_roll_assignment($team_b,$roll_balance,$min_team_member_count);
+		$roll_assignment_a = get_roll_assignment($team_a,$roll_balance,$max_team_member_count);
+		$roll_assignment_b = get_roll_assignment($team_b,$roll_balance,$max_team_member_count);
 		if(!empty($roll_assignment_a) &&
 		   !empty($roll_assignment_b))
 		{
