@@ -8,6 +8,7 @@ $player_data = $_temp['player_data'];
 
 //最終更新時刻がpostデータと一致しなかった（自分が更新を掛ける前に他の人に更新された)ので、マージ作業
 if(array_key_exists('time', $_REQUEST) &&
+   array_key_exists('time', $_temp) &&
    $_REQUEST['time'] != $_temp['time'])
 {
 	$_temp['is_need_update'] = true;
