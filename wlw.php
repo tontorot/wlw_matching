@@ -57,21 +57,21 @@ require('footer.tpl');
 
 echo $_output;
 
-function registrate_player($_REQUEST, $player_data)
+function registrate_player($request, $player_data)
 {
 	//新規登録処理
-	if(!array_key_exists('name', $_REQUEST))
+	if(!array_key_exists('name', $request))
 	{
 		return $player_data;
 	}
-	$player_name = htmlspecialchars($_REQUEST['name']);
+	$player_name = htmlspecialchars($request['name']);
 	if($player_name != '')
 	{
 		//新規登録処理開始
 		$new_player_data = array();
 		//ファイターです
-		if(array_key_exists('F', $_REQUEST) &&
-		   $_REQUEST['F'] == 1)
+		if(array_key_exists('F', $request) &&
+		   $request['F'] == 1)
 		{
 			$new_player_data['F'] = 1;
 		}
@@ -80,8 +80,8 @@ function registrate_player($_REQUEST, $player_data)
 			$new_player_data['F'] = 0;
 		}
 		//アタッカーです
-		if(array_key_exists('A', $_REQUEST) &&
-		   $_REQUEST['A'] == 1)
+		if(array_key_exists('A', $request) &&
+		   $request['A'] == 1)
 		{
 			$new_player_data['A'] = 1;
 		}
@@ -90,8 +90,8 @@ function registrate_player($_REQUEST, $player_data)
 			$new_player_data['A'] = 0;
 		}
 		//サポーターです
-		if(array_key_exists('S', $_REQUEST) &&
-		   $_REQUEST['S'] == 1)
+		if(array_key_exists('S', $request) &&
+		   $request['S'] == 1)
 		{
 			$new_player_data['S'] = 1;
 		}
@@ -104,19 +104,19 @@ function registrate_player($_REQUEST, $player_data)
 	return $player_data;
 }
 
-function roll_change($_REQUEST, $player_data)
+function roll_change($request, $player_data)
 {
 	//ユーザ名がリクエストされていて、それがiniファイルに存在していたら、ロール変更
-	if(!array_key_exists('name',$_REQUEST))
+	if(!array_key_exists('name',$request))
 	{
 		return $player_data;
 	}
-	$player_name = htmlspecialchars($_REQUEST['name']);
+	$player_name = htmlspecialchars($request['name']);
 	if(array_key_exists($player_name, $player_data))
 	{
 		//ファイターにチェックが入っていた
-		if(array_key_exists('F', $_REQUEST) &&
-		   $_REQUEST['F'] == 1)
+		if(array_key_exists('F', $request) &&
+		   $request['F'] == 1)
 		{
 			$player_data[$player_name]['F'] = 1;
 		}
@@ -125,8 +125,8 @@ function roll_change($_REQUEST, $player_data)
 			$player_data[$player_name]['F'] = 0;
 		}
 		//アタッカーにチェックが入っていた
-		if(array_key_exists('A', $_REQUEST) &&
-		   $_REQUEST['A'] == 1)
+		if(array_key_exists('A', $request) &&
+		   $request['A'] == 1)
 		{
 			$player_data[$player_name]['A'] = 1;
 		}
@@ -135,8 +135,8 @@ function roll_change($_REQUEST, $player_data)
 			$player_data[$player_name]['A'] = 0;
 		}
 		//サポーターにチェックが入っていた
-		if(array_key_exists('S', $_REQUEST) &&
-		   $_REQUEST['S'] == 1)
+		if(array_key_exists('S', $request) &&
+		   $request['S'] == 1)
 		{
 			$player_data[$player_name]['S'] = 1;
 		}
@@ -148,14 +148,14 @@ function roll_change($_REQUEST, $player_data)
 	return $player_data;
 }
 
-function delete_player($_REQUEST, $player_data)
+function delete_player($request, $player_data)
 {
 	//ユーザ名がリクエストされていて、それがiniファイルに存在していたら、登録削除
-	if(!array_key_exists('name',$_REQUEST))
+	if(!array_key_exists('name',$request))
 	{
 		return $player_data;
 	}
-	$player_name = htmlspecialchars($_REQUEST['name']);
+	$player_name = htmlspecialchars($request['name']);
 	if(array_key_exists($player_name, $player_data))
 	{
 		unset($player_data[$player_name]);
